@@ -22,9 +22,7 @@ $tbl = @(
     }
 )
 
-$json = $tbl | ConvertTo-Json
-
-$json | Out-File .\seed.json
+$tbl | ConvertTo-Json | Out-File .\seed.json
 
 
 # read seed and export csv
