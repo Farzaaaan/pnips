@@ -1,41 +1,75 @@
 # seed
-$tbl = @(
-    @{
-        ProductName="Phone"
-        Price=200
-    },
-    @{
-        ProductName="Charger"
-        Price=20
-    },
-    @{
-        ProductName="Headphones"
-        Price=100
+function Seed {
+
+    $tbl = @(
+        @{
+            ProductName = "Phone"
+            Price       = 200
+        },
+        @{
+            ProductName = "Charger"
+            Price       = 20
+        },
+        @{
+            ProductName = "Headphones"
+            Price       = 100
+        }
+        @{
+            ProductName = "Case"
+            Price       = 40
+        },
+        @{
+            ProductName = "Speaker"
+            Price       = 90
+        }
+    )
+    try {
+        $tbl | ConvertTo-Json | Out-File .\seed.json
     }
-    @{
-        ProductName="Case"
-        Price=40
-    },
-    @{
-        ProductName="Speaker"
-        Price=90
+    catch {
+        Write-Error "Failed to create seed file. Error: {0}" -f $_
     }
-)
-
-$tbl | ConvertTo-Json | Out-File .\seed.json
-
-
-# read seed and export csv
-
-if(Test-Path .\seed.json) {
-
-    $content = Get-Content -Path .\seed.json -Raw -ErrorAction Stop | ConvertFrom-Json
-    $content | select productName, price | where price -gt 50 | sort productName | Export-Csv .\report.csv
+      
 
 }
 
+# read seed
+function ReadJson {
+    if (Test-Path .\seed.json) {
+        $content = Get-Content -Path .\seed.json -Raw -ErrorAction Stop | ConvertFrom-Json
+        return $content
+    }
+    return $null
+}
 
-## clean up
+# export csv
+function GenerateReport {
+    [CmdletBinding()]
+    param (
+        [Parameter(Mandatory = $True, ValueFromPipeline = $True)]
+        [PSCustomObject]
+        $Input
+    )
 
-# rm .\seed.json
-# rm .\report.csv -Force
+    $Input | Select-Object productName, price | Where-Object price -gt 50 | Sort-Object productName | Export-Csv .\report.csv
+}
+
+# cleanup
+function Cleanup {
+
+    Remove-Item .\seed.json
+    Remove-Item .\report.csv -Force
+}
+
+
+function Run {
+
+    Seed
+
+    ReadJson | GenerateReport
+
+    #  Cleanup
+
+}
+
+Run
