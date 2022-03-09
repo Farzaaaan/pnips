@@ -1,6 +1,5 @@
 # seed
 function Seed {
-
     $tbl = @(
         @{
             ProductName = "Phone"
@@ -23,14 +22,13 @@ function Seed {
             Price       = 90
         }
     )
+
     try {
         $tbl | ConvertTo-Json | Out-File .\seed.json
     }
     catch {
         Write-Error "Failed to create seed file. Error: {0}" -f $_
     }
-      
-
 }
 
 # read seed
@@ -56,20 +54,16 @@ function GenerateReport {
 
 # cleanup
 function Cleanup {
-
     Remove-Item .\seed.json
     Remove-Item .\report.csv -Force
 }
 
 
 function Run {
-
     Seed
-
     ReadJson | GenerateReport
-
     #  Cleanup
-
 }
+
 
 Run
